@@ -1,0 +1,20 @@
+/* Neuron Ninjas - styles (neuron-ninjas.css) */
+/* Reset + base */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: Inter, system-ui, -apple-system, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, #0f172a 0%, #071022 70%);
+  color: #e6eef8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Game container */
+.game-wrap {
+  width: min(1100px, 96vw);
+  background: linear-gradient(
