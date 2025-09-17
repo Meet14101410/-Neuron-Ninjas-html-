@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Neuron Ninjas</title>
+  <style>
+    :root{--bg:#0b1020;--card:#111425;--accent:#00e6a8}
+    body{background:linear-gradient(180deg,var(--bg),#071022);color:#e6f7f0;font-family:Inter,system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .game{width:360px;padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);box-shadow:0 6px 18px rgba(3,7,18,0.6)}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    h1{font-size:18px;margin:0}
+    .hud{font-size:14px;opacity:0.9}
+    .board{position:relative;height:300px;background:rgba(255,255,255,0.01);border-radius:10px;overflow:hidden}
+    .neuron{position:absolute;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 30%,#1b6b56,#0c4232);box-shadow:0 6px 14px rgba(0,0,0,0.5);cursor:pointer;user-select:none;font-weight:700}
+    .pulse{animation:pulse 0.9s ease-out}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
+    .controls{display:flex;gap:8px;margin-top:10px}
+    button{flex:1;padding:8px;border-radius:8px;border:0;background:var(--accent);color:#01231a;font-weight:600;cursor:pointer}
+    .small{font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="game">
+    <header>
+      <h1>Neuron Ninjas</h1>
+      <div class="hud">
+        <span id="score">Score: 0</span> • <span id="time">30s</span>
+      </div>
+    </header>
+
+    <div class="board" id="board"></div>
+
+    <div class="controls">
+      <button id="start">Start</button>
+      <button id="reset" class="small">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    const board = document.getElementById('board');
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const startBtn = document.getElementById('start');
+    const resetBtn = document.getElementById('reset');
+
+    let score = 0, time = 30, timerId = null, spawnInterval = null;
+
+    function rand(min, max){return Math.floor(Math.random()*(max-min+1))+min}
+
+    function spawnNeuron(){
+      const n = document.createElement('div');
+      n.className = 'neuron';
+      n.textContent = '\u273F'; // starlike neuron
+      const size = rand(40,56);
+      n.style.width = n.style.height = size+'px';
+      const x = rand(6, board.clientWidth-size-6);
+      const y = rand(6, board.clientHeight-size-6);
+      n.style.left = x+'px';
+      n.style.top = y+'px';
+      board.appendChild(n);
+
+      n.addEventListener('click', () => {
+        score += 10;
+        scoreEl.textContent = 'Score: '+score;
+        n.classList.add('pulse');
+        setTimeout(()=>n.remove(),250);
+      });
+
+      // auto remove after some time
+      setTimeout(()=>{ if(n.parentElement) n.remove(); }, 1600);
+    }
+
+    function startGame(){
+      if(timerId) return; // already running
+      score = 0; time = 30;
+      scoreEl.textContent = 'Score: 0';
+      timeEl.textContent = time+'s';
+
+      spawnInterval = setInterval(spawnNeuron, 700);
+      // spawn a few immediately
+      for(let i=0;i<3;i++) setTimeout(spawnNeuron, i*150);
+
+      timerId = setInterval(()=>{
+        time -= 1; timeEl.textContent = time+'s';
+        if(time<=0) endGame();
+      },1000);
+    }
+
+    function endGame(){
+      clearInterval(timerId); clearInterval(spawnInterval);
+      timerId = spawnInterval = null;
+      // clear board
+      board.querySelectorAll('.neuron').forEach(n=>n.remove());
+      alert('Time! Your score: '+score);
+    }
+
+    function resetGame(){
+      clearInterval(timerId); clearInterval(spawnInterval);
+      timerId = spawnInterval = null;
+      score = 0; time = 30;
+      scoreEl.textContent = 'Score: 0';
+      timeEl.textContent = time+'s';
+      board.querySelectorAll('.neuron').forEach(n=>n.remove());
+    }
+
+    startBtn.addEventListener('click', startGame);
+    resetBtn.addEventListener('click', resetGame);
+
+    // friendly mobile touch support: allow tapping anywhere to spawn
+    board.addEventListener('touchstart', (e)=>{ e.preventDefault(); spawnNeuron(); });
+  </script>
+</body>
+</html>
