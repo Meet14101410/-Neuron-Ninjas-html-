@@ -1,0 +1,80 @@
+// Neuron Ninjas JS
+document.addEventListener("DOMContentLoaded", () => {
+  const playfield = document.querySelector(".playfield");
+  const scoreEl = document.querySelector("#score");
+  const timerEl = document.querySelector("#timer");
+  const progressBar = document.querySelector(".progress > i");
+  const modal = document.querySelector(".modal");
+  const modalCard = document.querySelector(".modal-card");
+  const startBtn = document.querySelector("#startBtn");
+  const restartBtn = document.querySelector("#restartBtn");
+
+  let score = 0;
+  let time = 30;
+  let gameInterval, timerInterval;
+
+  // Utility: random position
+  function randPos(max) {
+    return Math.floor(Math.random() * (max - 60)) + 30;
+  }
+
+  // Create a neuron
+  function spawnNeuron() {
+    const neuron = document.createElement("div");
+    neuron.className = "neuron";
+    neuron.style.top = `${randPos(playfield.clientHeight)}px`;
+    neuron.style.left = `${randPos(playfield.clientWidth)}px`;
+    neuron.textContent = "⚡";
+    playfield.appendChild(neuron);
+
+    // Click → score
+    neuron.addEventListener("click", () => {
+      score += 10;
+      scoreEl.textContent = score;
+
+      neuron.classList.add("hit");
+      setTimeout(() => neuron.remove(), 200);
+
+      // Floating score
+      const float = document.createElement("div");
+      float.className = "float-score";
+      float.textContent = "+10";
+      float.style.top = neuron.style.top;
+      float.style.left = neuron.style.left;
+      playfield.appendChild(float);
+      setTimeout(() => float.remove(), 700);
+    });
+
+    // Auto remove after some time
+    setTimeout(() => {
+      if (playfield.contains(neuron)) neuron.remove();
+    }, 2500);
+  }
+
+  // Start game
+  function startGame() {
+    score = 0;
+    time = 30;
+    scoreEl.textContent = score;
+    timerEl.textContent = time;
+    progressBar.style.width = "100%";
+    modal.classList.remove("open");
+
+    // Clear old neurons
+    playfield.querySelectorAll(".neuron").forEach(n => n.remove());
+
+    gameInterval = setInterval(spawnNeuron, 900);
+    timerInterval = setInterval(() => {
+      time--;
+      timerEl.textContent = time;
+      progressBar.style.width = `${(time / 30) * 100}%`;
+
+      if (time <= 0) endGame();
+    }, 1000);
+  }
+
+  // End game
+  function endGame() {
+    clearInterval(gameInterval);
+    clearInterval(timerInterval);
+    playfield.querySelectorAll(".neuron").forEach(n =
